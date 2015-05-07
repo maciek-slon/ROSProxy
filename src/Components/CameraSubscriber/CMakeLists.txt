@@ -7,7 +7,7 @@ FILE(GLOB files *.cpp)
 # Find required packages
 FIND_PACKAGE( OpenCV REQUIRED )
 
-USE_ROS(std_msgs sensor_msgs image_transport cv_bridge)
+USE_ROS(roscpp std_msgs sensor_msgs image_transport cv_bridge )
 
 # Create an executable file from sources:
 ADD_LIBRARY(CameraSubscriber SHARED ${files})
