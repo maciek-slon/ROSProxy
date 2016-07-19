@@ -83,6 +83,8 @@ protected:
 	// Properties
 	Base::Property<std::string> image_topic;
 	Base::Property<std::string> camera_info_topic;
+	Base::Property<std::string> image_type;
+	Base::Property<bool> spin;
 
 	
 	// Handlers
@@ -94,6 +96,14 @@ protected:
 	image_transport::CameraSubscriber sub;
 
 	void callback(const sensor_msgs::ImageConstPtr& img, const sensor_msgs::CameraInfoConstPtr& ci);
+	
+	
+	cv::Mat K,R,D,T,P;
+	
+	cv::Mat img;
+	Types::CameraInfo ci;
+	
+	bool new_image;
 };
 
 } //: namespace CameraSubscriber

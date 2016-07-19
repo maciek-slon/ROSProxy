@@ -2,3 +2,5 @@
 ADD_COMPONENT(IntProxy)
 
 ADD_COMPONENT(CameraSubscriber)
+
+ADD_COMPONENT(KinectSubscriber)

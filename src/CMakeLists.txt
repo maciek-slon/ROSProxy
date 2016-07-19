@@ -36,4 +36,4 @@ ADD_SUBDIRECTORY(Components)
 ADD_SUBDIRECTORY(Types)
 
 # Prepare config file to use from another DCLs
-CONFIGURE_FILE(ROSConfig.cmake.in ${CMAKE_INSTALL_PREFIX}/ROSConfig.cmake @ONLY)
+CONFIGURE_FILE(ROSProxyConfig.cmake.in ${CMAKE_INSTALL_PREFIX}/ROSProxyConfig.cmake @ONLY)

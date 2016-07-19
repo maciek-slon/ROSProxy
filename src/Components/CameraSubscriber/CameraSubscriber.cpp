@@ -18,10 +18,20 @@ namespace CameraSubscriber {
 CameraSubscriber::CameraSubscriber(const std::string & name) :
 		Base::Component(name) , 
 		image_topic("image_topic", std::string("/camera/image_raw")), 
-		camera_info_topic("camera_info_topic", std::string("/camera/camera_info")) {
+		camera_info_topic("camera_info_topic", std::string("/camera/camera_info")),
+		image_type("image_type", std::string("bgr8")),
+		spin("ros.spin", true),
+		K(3, 3, CV_64FC1),
+		R(3, 3, CV_64FC1),
+		D(1, 5, CV_64FC1),
+		T(3, 1, CV_64FC1),
+		P(3, 4, CV_64FC1) {
 	registerProperty(image_topic);
 	registerProperty(camera_info_topic);
+	registerProperty(image_type);
+	registerProperty(spin);
 
+	new_image = false;
 }
 
 CameraSubscriber::~CameraSubscriber() {
@@ -62,26 +72,60 @@ bool CameraSubscriber::onStart() {
 }
 
 void CameraSubscriber::spinOnce() {
-	ros::spinOnce();
+	if (spin)
+		ros::spinOnce();
+	
+	if (new_image) {
+		CLOG(LINFO) << "Sending...";
+		out_img.write(img.clone());
+		out_camera_info.write(ci);
+		
+		new_image = false;
+	}
 }
 
 void CameraSubscriber::callback(const sensor_msgs::ImageConstPtr& img, const sensor_msgs::CameraInfoConstPtr& ci) {
-	CLOG(LNOTICE) << "Newimage";
-	cv::Mat image = cv_bridge::toCvShare(img, "bgr8")->image.clone();
+	CLOG(LINFO) << name();
 	
-	CLOG(LNOTICE) << "Newimage";
-	out_img.write(image);
+	cv::Mat image = cv_bridge::toCvShare(img, image_type)->image.clone();
 	
-	CLOG(LNOTICE) << "Newimage";
 	Types::CameraInfo camera_info(ci->width, ci->height, ci->K[0], ci->K[4], ci->K[2], ci->K[5]);
 	
-	CLOG(LNOTICE) << "Newimage";
-	cv::Mat D = cv::Mat::zeros(1, 5, CV_32FC1);
-	/*for (int i = 0; i < 5; ++i) D.at<float>(0, i) = ci->D[i];
-	camera_info.setDistCoeffs(D);*/
+	for (int i = 0; i < 9; ++i) K.at<double>(i/3, i%3) = ci->K[i]; 
+	camera_info.setCameraMatrix(K);
+	CLOG(LDEBUG) << K;
 	
-	CLOG(LNOTICE) << "Newimage";
-	out_camera_info.write(camera_info);
+	
+	
+	
+	
+	
+	for (int i = 0; i < 9; ++i) R.at<double>(i/3, i%3) = ci->R[i]; 
+	camera_info.setRotationMatrix(R);
+	CLOG(LDEBUG) << R;
+	
+	for (int i = 0; i < 5; ++i) D.at<double>(0, i) = ci->D[i]; 
+	camera_info.setDistCoeffs(D);
+	CLOG(LDEBUG) << D;
+	
+	
+	
+	
+	
+	
+	T.at<double>(0, 0) = ci->P[3] / ci->P[0];
+	T.at<double>(1, 0) = 0;
+	T.at<double>(2, 0) = 0;
+	camera_info.setTranlationMatrix(T);
+	CLOG(LDEBUG) << T;
+	
+	for (int i = 0; i < 12; ++i) P.at<double>(i/4, i%4) = ci->P[i]; 
+	camera_info.setProjectionMatrix(P);
+	CLOG(LDEBUG) << P;
+	
+	this->img = image.clone();
+	this->ci = camera_info;
+	new_image = true;
 }
 
 

@@ -9,8 +9,6 @@ USE_ROS(roscpp std_msgs)
 # Create an executable file from sources:
 ADD_LIBRARY(IntProxy SHARED ${files})
 
-MESSAGE(STATUS "${ROS_LIBRARIES}")
-
 # Link external libraries
 TARGET_LINK_LIBRARIES(IntProxy ${DisCODe_LIBRARIES} ${ROS_LIBRARIES})
 

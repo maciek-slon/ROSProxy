@@ -17,7 +17,7 @@
 		<Subtask name="Processing">
 			<Executor name="Exec1" period="0.1">
 				<Component name="Source" type="ROSProxy:CameraSubscriber" priority="1" bump="0">
-					<param name="image_topic">/camera/image_color</param>
+					<param name="image_topic">/stereo/right/image_color</param>
 				</Component>
 			</Executor>
 		</Subtask>
